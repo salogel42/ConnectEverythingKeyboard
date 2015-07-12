@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0046)http://connecteverything2.herokuapp.com/expert -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Connect everything! v2</title>
+    <link href="http://connecteverything2.herokuapp.com/bootstrap.min.css" media="screen" rel="stylesheet">
+    <link href="http://connecteverything2.herokuapp.com/style.css" rel="stylesheet">
+    <meta content="http://connecteverything2.herokuapp.com/screen.png" property="og:image">
+    <meta content="Simple puzzle game to challenge your logical thinking!" property="og:description">
+    <meta content="Simple puzzle game to challenge your logical thinking. Play directly in the browser!" name="description">
+    <link href="http://connecteverything2.herokuapp.com/" rel="canonical">
+  <style type="text/css"></style><style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style></head>
+  <body>
+    <script type="text/javascript" async="" src="./Connect everything! v2_files/ga.js"></script><script type="text/javascript">
+      //<![CDATA[
+        // google analytics
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-39370657-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+        // old browser warnings
+        var $buoop = {vs:{i:9,f:16,o:11,s:5,n:9}}
+        $buoop.ol = window.onload;
+        window.onload=function(){
+         try {if ($buoop.ol) $buoop.ol();}catch (e) {}
+         var e = document.createElement("script");
+         e.setAttribute("type", "text/javascript");
+         e.setAttribute("src", "./Connect everything! v2_files/update_browser.js");
+         document.body.appendChild(e);
+        }
+      //]]>
+    </script>
+    <script src="./Connect everything! v2_files/jquery.js"></script>
+    <script src="./Connect everything! v2_files/jquery.color-2.1.2.min.js"></script>
+    <script src="./Connect everything! v2_files/jquery.easing.min.js"></script>
+    <script src="./Connect everything! v2_files/bootstrap.min.js"></script>
+    <div id="expert-mode"></div>
+    <table class="hide" id="game" style="display: table;">
+      <tbody><tr>
+        <td>
+          <canvas height="442" id="gamecanvas" width="646"></canvas>
+        </td>
+        <td class="gameinfo">
+          <div class="level">
+            Level
+            <span class="level-num">9</span>
+          </div>
+          <br>
+          <strong>
+            <span id="score">0</span>
+          </strong>
+          <!-- %br -->
+          <!-- %br -->
+          <!-- moves: -->
+          <!-- %strong -->
+          <!-- %span#moves.moves -->
+          <!-- 0/0 -->
+          <br>
+          points
+          <br>
+          <span class="hide" id="time">13:31</span>
+          <br>
+          <br>
+          <br>
+          <button class="btn btn-primary" id="save-score" style="display: none;">
+            Save
+          </button>
+        </td>
+      </tr>
+    </tbody></table>
+    <p id="loading" style="display: none;">
+      <br>
+      loading first level
+    </p>
+    <div class="modal hide fade" id="game-over">
+      <div class="modal-header">
+        <button aria="{:hidden=&gt;&quot;true&quot;}" class="close" data-dismiss="modal" type="button">×</button>
+        <h3>Game Over!</h3>
+      </div>
+      <div class="modal-body">
+        <div class="points">
+          <span class="points-number">0</span>
+          points
+        </div>
+        <div class="level">
+          level
+          <span class="level-number">
+            0
+          </span>
+        </div>
+        <form action="http://connecteverything2.herokuapp.com/submitscore" id="game-over-form" method="post">
+          <input name="level" type="hidden" value="0">
+          <input name="score" type="hidden" value="0">
+          <input id="nameinput" maxlength="14" name="name" placeholder="Enter your name..." type="text" value="Sdspikes">
+        </form>
+        <div class="hiscore">
+          <h4>
+            recent players
+          </h4>
+          <table>
+            <tbody><tr>
+              <th></th>
+              <th>
+                name
+              </th>
+              <th>
+                level
+              </th>
+              <th>
+                score
+              </th>
+            </tr>
+            <tr class="">
+              <td class="pos">1.</td>
+              <td class="name">
+                Mqrius
+              </td>
+              <td>16</td>
+              <td class="points">
+                77.5
+              </td>
+            </tr>
+            <tr class="">
+              <td class="pos">2.</td>
+              <td class="name">
+                Derfnam
+              </td>
+              <td>16</td>
+              <td class="points">
+                76.5
+              </td>
+            </tr>
+            <tr class="">
+              <td class="pos">3.</td>
+              <td class="name">
+                Sdspikes
+              </td>
+              <td>16</td>
+              <td class="points">
+                76.4
+              </td>
+            </tr>
+            <tr class="">
+              <td class="pos">4.</td>
+              <td class="name">
+                ragajajaj
+              </td>
+              <td>16</td>
+              <td class="points">
+                75.8
+              </td>
+            </tr>
+            <tr class="">
+              <td class="pos">5.</td>
+              <td class="name">
+                ragajgajgj
+              </td>
+              <td>16</td>
+              <td class="points">
+                75.5
+              </td>
+            </tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button aria="{:hidden=&gt;&quot;true&quot;}" class="btn" data-dismiss="modal" type="button">Cancel</button>
+        <a class="btn" href="Connect everything! v2.html">New Game</a>
+        <button class="btn btn-primary" form="game-over-form" id="submit-score" type="submit">Save score</button>
+      </div>
+    </div>
+    <script type="text/javascript">
+      //<![CDATA[
+        $(document).ready( function() {
+
+          text_input = $('#nameinput');
+          $('#game-over').on('shown', function() {
+            text_input.focus();
+            if (text_input.val() != '') {
+                text_input.select();
+            }
+          });
+          $('#submit-score').click(function() {
+            if (text_input.val() == '') {
+              alert('Please enter your name');
+              return false;
+            }
+          });
+          $('#game-over').on('hidden', function() {
+             $('#save-score').show();
+          })
+          $('#save-score').hide();
+          $('#save-score').click(function() {
+             $('#game-over').modal();
+          });
+          $('footer').addClass('hide')
+        });
+      //]]>
+    </script>
+    <script src="./Connect everything! v2_files/detectmobilebrowser.js"></script>
+    <script src="./Connect everything! v2_files/netconnect.js"></script>
+    <footer class="hide" style="display: block;">
+      <a href="http://connecteverything2.herokuapp.com/">new game</a>
+      |
+      <a href="Connect everything! v2.html">new expert game</a>
+      |
+      <a href="http://connecteverything2.herokuapp.com/rules">rules</a>
+      |
+      <a href="http://connecteverything2.herokuapp.com/comments">comments</a>
+      |
+      <a href="http://connecteverything2.herokuapp.com/hiscores">hiscores</a>
+    </footer>
+
+
+<script type="text/javascript" src="./Connect everything! v2_files/update_browser.js"></script><script id="hiddenlpsubmitdiv" style="display: none;"></script><script>try{for(var lastpass_iter=0; lastpass_iter < document.forms.length; lastpass_iter++){ var lastpass_f = document.forms[lastpass_iter]; if(typeof(lastpass_f.lpsubmitorig2)=="undefined"){ lastpass_f.lpsubmitorig2 = lastpass_f.submit; if (typeof(lastpass_f.lpsubmitorig2)=='object'){ continue;}lastpass_f.submit = function(){ var form=this; var customEvent = document.createEvent("Event"); customEvent.initEvent("lpCustomEvent", true, true); var d = document.getElementById("hiddenlpsubmitdiv"); if (d) {for(var i = 0; i < document.forms.length; i++){ if(document.forms[i]==form){ if (typeof(d.innerText) != 'undefined') { d.innerText=i.toString(); } else { d.textContent=i.toString(); } } } d.dispatchEvent(customEvent); }form.lpsubmitorig2(); } } }}catch(e){}</script></body><div></div></html>
