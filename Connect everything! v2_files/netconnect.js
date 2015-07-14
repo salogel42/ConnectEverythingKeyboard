@@ -31,17 +31,22 @@ game.init = function() {
             return;
         }
         var cellAndRotation = game.getCellAndRotation(evt);
-        var cell = cellAndRotation.cell;
-        var clockwise = cellAndRotation.clockwise;
-
-        if (!cell || cell.marked) {
-            return;
-        }
-        if ($.browser.mobile) clockwise = true;
-        cell.setMoved();
-        cell.animate(clockwise);
+        game.rotateCell(cellAndRotation);
         evt.preventDefault();
     };
+
+    this.rotateCell = function(cellAndRotation) {
+      var cell = cellAndRotation.cell;
+      var clockwise = cellAndRotation.clockwise;
+
+      if (!cell || cell.marked) {
+          return;
+      }
+      if ($.browser.mobile) clockwise = true;
+      cell.setMoved();
+      cell.animate(clockwise);
+    }
+
     // disable selection that can get triggered on double mouse click
     canvas.onselectstart = function() {return false;};
 
@@ -129,7 +134,8 @@ game.init = function() {
         var cell = game.cellAt(row, col);
 
         var clockwise = Math.floor(x / (size/2))%2 == 1;
-        return {cell:cell, clockwise:clockwise};
+        currentCellAndRotation = {cell:cell, clockwise:clockwise};
+        return currentCellAndRotation;
     };
 
     $(canvas).mousemove(function(evt) {
@@ -161,12 +167,28 @@ game.init = function() {
         game.mouseout();
     };
 
+    var keys = {'space':32, 'ctrl':17};
+    var directions = {37: {'x':0, 'y':-1}, 39:{'x':0, 'y':1}, 40:{'x':1, 'y':0}, 38:{'x':-1, 'y':0}};
     window.onkeydown = function(event) {
         if (!game.active) return;
-        if (event.keyCode != 32) return;
-        var cell = game.mouseOverCell;
-        if (cell && !cell.marked && !cell.isRotating) {
-            game.cellMoved(cell);
+        console.log(event.keyCode)
+        if (event.keyCode === keys['space']) {
+          // lock current cell in place
+          var cell = game.mouseOverCell;
+          if (cell && !cell.marked && !cell.isRotating) {
+              game.cellMoved(cell);
+          }
+        } else if (event.keyCode === keys['ctrl']){
+          // turn current cell
+          game.rotateCell(currentCellAndRotation);
+        } else if (directions.hasOwnProperty(event.keyCode)) {
+          var dir = directions[event.keyCode];
+          if (!currentCellAndRotation) {
+            // pick one
+          }
+          var oldCell = currentCellAndRotation.cell;
+          currentCellAndRotation.cell = game.cellAt(
+            oldCell.row + dir.x, oldCell.col + dir.y, game.wrapping);
         }
     };
 
@@ -1124,6 +1146,7 @@ function Cell(row, col, size, game, binary) {
     this.speed = 0.7; // radiants/s
     this.fps = 50;
     this.clicks = []; // boolean clockwise or not
+    this.currentCellAndRotation;
 
     this.animate = function(clockwise, time) {
         this.isRotating = true;
