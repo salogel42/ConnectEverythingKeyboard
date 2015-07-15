@@ -23,6 +23,9 @@ game.BORDER = 1/4;
 game.expertMode = $('#expert-mode').length ? true : false;
 game.init = function() {
 
+    this.currentCellAndRotation;
+
+
     $(canvas).on('mousedown', function(evt){game.handleClick(evt)});
     $(canvas).on('touchstart', function(evt){game.handleClick(evt)});
 
@@ -47,6 +50,17 @@ game.init = function() {
       cell.animate(clockwise);
     }
 
+    this.updateCellAndRotation = function(newCellAndRotation) {
+        if (game.currentCellAndRotation && game.currentCellAndRotation.cell) {
+            game.currentCellAndRotation.cell.background = 'black';
+            game.currentCellAndRotation.cell.draw(true);
+        }
+        game.currentCellAndRotation = newCellAndRotation;
+        if (newCellAndRotation && newCellAndRotation.cell) {
+            game.currentCellAndRotation.cell.background = 'rgb(50, 20, 50)';
+            game.currentCellAndRotation.cell.draw(true);
+        }
+    };
     // disable selection that can get triggered on double mouse click
     canvas.onselectstart = function() {return false;};
 
@@ -63,7 +77,7 @@ game.init = function() {
     this.handleRotationStarted = function(cell) {
         if (!game.active) return;
         var lastCell = this.lastCell;
-        if (lastCell && lastCell !== cell && !lastCell.isRotating) {
+        if (lastCell !== cell && lastCell && lastCell.moved) {
             this.cellMoved(lastCell);
         }
         this.lastCell = cell;
@@ -74,6 +88,8 @@ game.init = function() {
     // or after ti has been marked
     // checks if the cell is a correct solution
     this.cellMoved = function(cell) {
+        if (!cell || cell.isRotating) return;
+
         cell.marked = true;
         cell.moved = false;
         cell.draw(true);
@@ -134,8 +150,11 @@ game.init = function() {
         var cell = game.cellAt(row, col);
 
         var clockwise = Math.floor(x / (size/2))%2 == 1;
-        currentCellAndRotation = {cell:cell, clockwise:clockwise};
-        return currentCellAndRotation;
+        var cellAndRotation = {cell:cell, clockwise:clockwise};
+        if (cell) {
+            game.updateCellAndRotation(cellAndRotation);
+        }
+        return cellAndRotation;
     };
 
     $(canvas).mousemove(function(evt) {
@@ -167,28 +186,39 @@ game.init = function() {
         game.mouseout();
     };
 
-    var keys = {'space':32, 'ctrl':17};
+    var keys = {'space':32, 'ctrl':17, 'esc': 27, 'shift': 16};
     var directions = {37: {'x':0, 'y':-1}, 39:{'x':0, 'y':1}, 40:{'x':1, 'y':0}, 38:{'x':-1, 'y':0}};
     window.onkeydown = function(event) {
         if (!game.active) return;
-        console.log(event.keyCode)
         if (event.keyCode === keys['space']) {
-          // lock current cell in place
-          var cell = game.mouseOverCell;
-          if (cell && !cell.marked && !cell.isRotating) {
-              game.cellMoved(cell);
-          }
-        } else if (event.keyCode === keys['ctrl']){
-          // turn current cell
-          game.rotateCell(currentCellAndRotation);
+            // lock current cell in place
+            var cell = game.mouseOverCell;
+            if (game.currentCellAndRotation) {
+                game.cellMoved(game.currentCellAndRotation.cell);
+            } else if (cell && !cell.marked){
+                game.cellMoved(cell);
+            }
+        } else if (event.keyCode === keys['esc']) {
+            if (game.currentCellAndRotation && game.currentCellAndRotation.cell) {
+                game.currentCellAndRotation.cell.resetToShuffled();
+            }
+        } else if (event.keyCode === keys['shift']){
+            // turn current cell
+            if (game.currentCellAndRotation) {
+                game.rotateCell(game.currentCellAndRotation);
+            }
         } else if (directions.hasOwnProperty(event.keyCode)) {
-          var dir = directions[event.keyCode];
-          if (!currentCellAndRotation) {
-            // pick one
-          }
-          var oldCell = currentCellAndRotation.cell;
-          currentCellAndRotation.cell = game.cellAt(
-            oldCell.row + dir.x, oldCell.col + dir.y, game.wrapping);
+            var dir = directions[event.keyCode];
+            if (!game.currentCellAndRotation) {
+                var cell = game.cellAt(0, 0);
+                game.updateCellAndRotation({cell:cell, clockwise:true});
+            }
+            var oldCell = game.currentCellAndRotation.cell;
+            var newCell = game.cellAt(
+                oldCell.row + dir.x, oldCell.col + dir.y, game.wrapping);
+            game.updateCellAndRotation({cell:newCell, clockwise:game.currentCellAndRotation.clockwise});
+        } else {
+            console.log(event.keyCode);
         }
     };
 
@@ -628,6 +658,7 @@ game.init = function() {
         for (var i = 0; i < this.cells.length; ++i) {
             var cell = this.cells[i];
             cell.shuffle();
+            cell.shuffledMoves = 0;
         }
     };
 
@@ -763,6 +794,7 @@ function Cell(row, col, size, game, binary) {
     this.Left = 3;
     this.cables = [false,false,false,false];
     this.originalPosition = 0;
+    this.shuffledMoves = 0;
     if (binary) {
         var cables = binary.split('')
         this.cables = binary.split('').map(function(val) {
@@ -920,7 +952,7 @@ function Cell(row, col, size, game, binary) {
 
     this.drawBackground = function() {
         var ctx = this.context;
-        if (this.marked) {
+        if (this.marked || this.background !== 'black') {
             ctx.fillStyle = this.background;
         } else {
             ctx.fillStyle = 'rgb(100,100,100)';
@@ -1129,12 +1161,14 @@ function Cell(row, col, size, game, binary) {
 
     this.rotateClockwise = function() {
         this.originalPosition = this.normalizeMoves(this.originalPosition-1);
+        this.shuffledMoves = this.normalizeMoves(this.shuffledMoves-1);
         var last = this.cables.pop();
         this.cables.unshift(last);
         this.dirty = true;
     };
     this.rotateCounterClockwise = function() {
         this.originalPosition = this.normalizeMoves(this.originalPosition+1);
+        this.shuffledMoves = this.normalizeMoves(this.shuffledMoves+1);
         var first = this.cables.shift();
         this.cables.push(first);
         this.dirty = true;
@@ -1146,7 +1180,6 @@ function Cell(row, col, size, game, binary) {
     this.speed = 0.7; // radiants/s
     this.fps = 50;
     this.clicks = []; // boolean clockwise or not
-    this.currentCellAndRotation;
 
     this.animate = function(clockwise, time) {
         this.isRotating = true;
@@ -1226,6 +1259,21 @@ function Cell(row, col, size, game, binary) {
 
     this.stopErrorAnimation = function() {
         clearInterval(this.errorAnimationInterval);
+    };
+
+    this.resetToShuffled = function() {
+        var moves = this.shuffledMoves;
+        var clockwise = moves > 0;
+        for (var j = 0; j < Math.abs(moves); ++j) {
+            if (clockwise) {
+                this.rotateClockwise();
+            } else {
+                this.rotateCounterClockwise();
+            }
+        }
+        this.unsetMoved();
+        this.game.updateGame();
+        this.draw();
     };
 
     this.reset = function(time) {
