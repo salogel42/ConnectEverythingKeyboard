@@ -57,7 +57,7 @@ game.init = function() {
         }
         game.currentCellAndRotation = newCellAndRotation;
         if (newCellAndRotation && newCellAndRotation.cell) {
-            game.currentCellAndRotation.cell.background = 'rgb(50, 20, 50)';
+            game.currentCellAndRotation.cell.background = 'rgb(90, 90, 180)';
             game.currentCellAndRotation.cell.draw(true);
         }
     };
@@ -186,11 +186,23 @@ game.init = function() {
         game.mouseout();
     };
 
-    var keys = {'space':32, 'ctrl':17, 'esc': 27, 'shift': 16};
-    var directions = {37: {'x':0, 'y':-1}, 39:{'x':0, 'y':1}, 40:{'x':1, 'y':0}, 38:{'x':-1, 'y':0}};
+    var keys = {'space':32, 'ctrl':17, 'esc': 27, 'shift': 16, 'j': 74, 'k': 75, 'l': 76};
+
+    var directions = {
+        'up': {'x':-1, 'y':0},
+        'down':{'x':1, 'y':0},
+        'right':{'x':0, 'y':1},
+        'left':{'x':0, 'y':-1}
+    };
+    var keyMappings = {
+        40: 'down', 83: 'down',
+        38: 'up', 87: 'up',
+        39: 'right', 68: 'right',
+        37: 'left', 65: 'left'
+    };
     window.onkeydown = function(event) {
         if (!game.active) return;
-        if (event.keyCode === keys['space']) {
+        if (event.keyCode === keys['space'] || event.keyCode === keys['l']) {
             // lock current cell in place
             var cell = game.mouseOverCell;
             if (game.currentCellAndRotation) {
@@ -202,13 +214,21 @@ game.init = function() {
             if (game.currentCellAndRotation && game.currentCellAndRotation.cell) {
                 game.currentCellAndRotation.cell.resetToShuffled();
             }
-        } else if (event.keyCode === keys['shift']){
+        } else if (event.keyCode === keys['j']){
             // turn current cell
             if (game.currentCellAndRotation) {
+                game.currentCellAndRotation.clockwise = false;
                 game.rotateCell(game.currentCellAndRotation);
             }
-        } else if (directions.hasOwnProperty(event.keyCode)) {
-            var dir = directions[event.keyCode];
+        } else if (event.keyCode === keys['k']){
+            // turn current cell
+            if (game.currentCellAndRotation) {
+                game.currentCellAndRotation.clockwise = true;
+                game.rotateCell(game.currentCellAndRotation);
+            }
+        } else if (keyMappings.hasOwnProperty(event.keyCode)) {
+            console.log(keyMappings[event.keyCode]);
+            var dir = directions[keyMappings[event.keyCode]];
             if (!game.currentCellAndRotation) {
                 var cell = game.cellAt(0, 0);
                 game.updateCellAndRotation({cell:cell, clockwise:true});
@@ -217,9 +237,9 @@ game.init = function() {
             var newCell = game.cellAt(
                 oldCell.row + dir.x, oldCell.col + dir.y, game.wrapping);
             game.updateCellAndRotation({cell:newCell, clockwise:game.currentCellAndRotation.clockwise});
-        } else {
-            console.log(event.keyCode);
         }
+        console.log(event.keyCode);
+        // }
     };
 
     this.mouseout = function() {
